@@ -21,7 +21,7 @@ const drawerItems = [
     path: '/'
   },
   {
-    text: 'Create notes',
+    text: 'Create note',
     icon: <AddCircleOutlineOutlined color='secondary'/>,
     path: '/create'
   },
@@ -70,7 +70,6 @@ export default function Layout({children}) {
 
   return (
     <div className={s.root}>
-
       <AppBar
         className={s.appbar}
         color='inherit'
@@ -80,18 +79,14 @@ export default function Layout({children}) {
 
         </Toolbar>
       </AppBar>
-
       <Drawer
         className={s.draw}
         variant='permanent'
         classes={{ paper: s.drawPaper}}
       >
-        <div>
-          <Typography align='center' className={s.title} variant='h5'>
-            Notes-app
-          </Typography>
-        </div>
-
+        <Typography align='center' className={s.title} variant='h5'>
+          Notes-app
+        </Typography>
         <List className={s.list}>
           {drawerItems.map(item => (
             <NavLink to={item.path} key={item.text}>
@@ -107,9 +102,7 @@ export default function Layout({children}) {
             </NavLink>
           ))}
         </List>
-
       </Drawer>
-
       <div className={s.page}>
         <div className={s.toolbar}/>
           {children}

@@ -13,6 +13,7 @@ import {
 	FormLabel,
 	FormControl,
 } from '@material-ui/core'
+import {useFetch} from '../hooks/useFetch';
 
 const useStyles = makeStyles({
 	field: {
@@ -41,7 +42,7 @@ export default function Create() {
 			fetch('http://localhost:8000/notes', {
 				method: 'POST',
 				headers: {'Content-type': 'application/json'},
-				body: JSON.stringify({title, details, category})
+				body: JSON.stringify({title, details, category, favorite: false})
 			}).then(() => history.push('/'))
 		}
 	}
