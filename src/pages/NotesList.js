@@ -1,13 +1,23 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import update from 'immutability-helper'
-import { Grid} from '@material-ui/core'
+import {Grid, makeStyles} from '@material-ui/core'
 import NoteCard from '../components/NoteCard'
-import {HTML5Backend} from 'react-dnd-html5-backend'
-import {DndProvider} from 'react-dnd'
 
+const useStyles = makeStyles({
+  root: {
+    flexGrow: 1,
+  },
+});
 
-export default function Notes() {
+export default function NotesList() {
   const [notes, setNotes] = useState([])
+  const s = useStyles()
+
+  useEffect(() => {
+    fetch('http://localhost:8000/notes/')
+      .then(res => res.json())
+      .then(data => setNotes(data))
+  },[])
 
   const deleteNoteHandler = noteId => {
     const newNotes = notes.filter(note => note.id !== noteId)
@@ -24,20 +34,13 @@ export default function Notes() {
     setNotes(newNotes)
   }
 
-  useEffect(() => {
-    fetch('http://localhost:8000/notes')
-      .then(res => res.json())
-      .then(data => setNotes(data))
-  },[])
-
-
   const findCard = useCallback((id) => {
     const note = notes.filter((c) => `${c.id}` === id)[0]
     return {note, index: notes.indexOf(note)}
   }, [notes])
 
   const moveCard = useCallback((id, atIndex) => {
-    const { note, index } = findCard(id);
+    const {note, index} = findCard(id);
     setNotes(update(notes, {
       $splice: [
         [index, 1],
@@ -46,17 +49,15 @@ export default function Notes() {
     }));
   }, [findCard, notes, setNotes])
 
-
   return (
-    <DndProvider backend={HTML5Backend}>
+    <div className={s.root}>
       <Grid container spacing={3} >
         {notes.map(note => (
           <NoteCard
             key={note.id}
-            dndId={`${note.id}`}
-
+            id={note.id}
             notes={notes}
-
+            dndId={String(note.id)}
             note={note}
             onDelete={deleteNoteHandler}
             onSave={AddToFavoriteHandler}
@@ -65,6 +66,6 @@ export default function Notes() {
           />
         ))}
       </Grid>
-    </DndProvider>
+    </div>
   )
 }

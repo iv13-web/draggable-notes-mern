@@ -15,8 +15,7 @@ import {DeleteOutlined, Edit} from '@material-ui/icons'
 import FavoriteBorderOutlinedIcon from '@material-ui/icons/FavoriteBorderOutlined'
 import FavoriteOutlinedIcon from '@material-ui/icons/FavoriteOutlined'
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator'
-import {DragPreviewImage, useDrag, useDrop} from 'react-dnd'
-import {useEffect} from 'react';
+import {useDrag, useDrop} from 'react-dnd'
 
 const useStyles = makeStyles((theme) => {
 	return {
@@ -26,12 +25,10 @@ const useStyles = makeStyles((theme) => {
 					? '1px solid red'
 					: '1px solid transparent'
 			},
-			minWidth: 350,
 		},
 		placeholder: {
 			border: '2px dashed #d3d8de',
 			height: 120,
-			width: 345,
 			backgroundColor: 'transparent'
 		},
 		btn:{
@@ -71,11 +68,17 @@ export default function NoteCard ({note, onDelete, onSave, findCard, moveCard, d
 		collect: (monitor) => ({
 			isDragging: monitor.isDragging(),
 		}),
-
+		end() {
+		// 	fetch('http://localhost:8000/notes/', {
+		// 		method: 'PUT',
+		// 		headers: {'Content-type': 'application/json'},
+		// 		body: JSON.stringify(notes)
+		// 	}).then(response => response.json())
+		// 		.then(json => console.log(json))
+		}
 	}), [dndId, originalIndex, moveCard])
 
-
-	const [{isOver}, drop] = useDrop(() => ({
+	const [, drop] = useDrop(() => ({
 		accept: 'note',
 		canDrop: () => false,
 		hover({ dndId: draggedId }) {
@@ -86,15 +89,14 @@ export default function NoteCard ({note, onDelete, onSave, findCard, moveCard, d
 		},
 	}), [findCard, moveCard])
 
-
 	if (isDragging) return (
-		<Grid item>
+		<Grid item xs={12} md={6} lg={4} xl={3}>
 			<Card className={s.placeholder}/>
 		</Grid>
 	)
 
 	return (
-		<Grid item>
+		<Grid item xs={12} md={6} lg={4} xl={3}>
 			<Card
 				draggable={true}
 				elevation={3}
@@ -114,7 +116,7 @@ export default function NoteCard ({note, onDelete, onSave, findCard, moveCard, d
 						<>
 							<IconButton
 								onClick={e => onSave(e, note.id)}
-								size={'small'}
+								size='small'
 							>
 								{note.favorite === false
 									? <FavoriteBorderOutlinedIcon/>
@@ -122,7 +124,7 @@ export default function NoteCard ({note, onDelete, onSave, findCard, moveCard, d
 								}
 							</IconButton>
 							<IconButton
-								size={'small'}
+								size='small'
 								className={s.dragBnt}
 								ref={(node) => drag(node)}
 								disableRipple
@@ -134,7 +136,6 @@ export default function NoteCard ({note, onDelete, onSave, findCard, moveCard, d
 				/>
 				<Divider/>
 				<CardActions disableSpacing>
-
 					<ButtonGroup>
 						<Button
 							startIcon={<DeleteOutlined color='secondary'/>}

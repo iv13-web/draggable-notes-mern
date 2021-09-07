@@ -13,8 +13,8 @@ import {AddCircleOutlineOutlined, SubjectOutlined} from '@material-ui/icons'
 import FavoriteBorderOutlinedIcon from '@material-ui/icons/FavoriteBorderOutlined'
 import {NavLink, useLocation} from 'react-router-dom'
 
-const DRAW_WIDTH = 200
-const drawerItems = [
+const DRAW_WIDTH = 168
+const drawItems = [
   {
     text: 'My notes',
     icon: <SubjectOutlined color='secondary'/>,
@@ -50,6 +50,9 @@ const useStyles = makeStyles((theme) => {
     list: {
       paddingTop: 0
     },
+    listItem: {
+      minWidth: 40
+    },
     title: {
       padding: theme.spacing(2)
     },
@@ -84,17 +87,17 @@ export default function Layout({children}) {
         variant='permanent'
         classes={{ paper: s.drawPaper}}
       >
-        <Typography align='center' className={s.title} variant='h5'>
+        <Typography align='center' className={s.title} variant='h6'>
           Notes-app
         </Typography>
         <List className={s.list}>
-          {drawerItems.map(item => (
+          {drawItems.map(item => (
             <NavLink to={item.path} key={item.text}>
               <ListItem
                 button
                 className={pathname === item.path ? s.activeNav : null}
               >
-                <ListItemIcon>
+                <ListItemIcon className={s.listItem}>
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText primary={item.text}/>
