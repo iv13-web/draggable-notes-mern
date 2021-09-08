@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => {
 const LEFT_BTN_TEXT = 'delete'
 const RIGHT_BTN_TEXT = 'open'
 
-export default function NoteCard ({note, onDelete, onSave, findCard, moveCard, dndId}) {
+export default function NoteCard({note, onDelete, onSave, findCard, moveCard, dndId}) {
 	const s = useStyles(note)
 
 	const originalIndex = findCard(dndId).index
