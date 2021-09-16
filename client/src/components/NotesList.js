@@ -4,6 +4,7 @@ import {Grid, makeStyles} from '@material-ui/core'
 import NoteCard from './NoteCard'
 import useFetch from '../hooks/useFetch'
 import SkeletonNote from './SkeletonNote'
+import LazyLoader from './LazyLoader'
 
 const useStyles = makeStyles({
   root: {
@@ -54,7 +55,12 @@ export default function NotesList(props) {
   return (
     <div className={s.root}>
       <Grid container spacing={3} >
-        {isLoading && <SkeletonNote count={12}/>}
+        {isLoading &&
+          <LazyLoader
+            delay={300}
+            component={<SkeletonNote count={12}/>}
+          />
+        }
         {notes && notes.map(note => (
           <NoteCard
             key={note._id}
