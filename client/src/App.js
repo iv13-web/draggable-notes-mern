@@ -1,11 +1,13 @@
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
-import NotesList from './pages/NotesList'
+import NotesList from './components/NotesList'
 import Create from './pages/Create'
 import Favorite from './pages/Favorite'
 import {createTheme, ThemeProvider} from '@material-ui/core'
-import Layout from './components/Layout'
-import {HTML5Backend} from 'react-dnd-html5-backend';
-import {DndProvider} from 'react-dnd';
+import {HTML5Backend} from 'react-dnd-html5-backend'
+import {DndProvider} from 'react-dnd'
+import Layout from './components/Layout/Layout'
+import SignIn from './pages/SignIn'
+import SignUp from './pages/SignUp'
 
 const theme = createTheme({
   palette: {
@@ -20,9 +22,10 @@ export default function App() {
           <Layout>
             <Switch>
               <Route exact path="/" component={NotesList}/>
+              <Route path="/login" component={SignIn}/>
+              <Route path="/signup" component={SignUp}/>
               <Route path="/create" component={Create}/>
               <Route path="/favorite" component={Favorite}/>
-              <Route path="/note/:id" component={Favorite}/>
             </Switch>
           </Layout>
         </Router>

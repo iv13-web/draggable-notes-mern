@@ -13,7 +13,7 @@ import {
 	FormLabel,
 	FormControl,
 } from '@material-ui/core'
-import {useFetch} from '../hooks/useFetch';
+import useFetch from '../hooks/useFetch'
 
 const useStyles = makeStyles({
 	field: {
@@ -33,17 +33,19 @@ export default function Create() {
 	const [titleError, setTitleError] = useState(false)
 	const [detailsError, setDetailsError] = useState(false)
 	const [category, setCategory] = useState('reminders')
-
+	const {sendRequest} = useFetch('http://localhost:5001/create', {
+		method: 'POST',
+		headers: {'Content-type': 'application/json'},
+		body: JSON.stringify({title, details, category}),
+		autoExecute: false
+	})
 	const submitHandler = e => {
 		e.preventDefault()
 		title.trim() ? setTitleError(false) : setTitleError(true)
 		details.trim() ? setDetailsError(false) : setDetailsError(true)
 		if (title.trim() && details.trim()) {
-			fetch('http://localhost:8000/notes', {
-				method: 'POST',
-				headers: {'Content-type': 'application/json'},
-				body: JSON.stringify({title, details, category, favorite: false})
-			}).then(() => history.push('/'))
+			sendRequest()
+			history.push('/')
 		}
 	}
 
@@ -57,7 +59,6 @@ export default function Create() {
 			>
 				Create a new note
 			</Typography>
-
 			<form
 				onSubmit={submitHandler}
 				noValidate
@@ -75,6 +76,7 @@ export default function Create() {
 					fullWidth
 					required
 					error={titleError}
+					autoFocus
 				/>
 				<TextField
 					onChange={e => {

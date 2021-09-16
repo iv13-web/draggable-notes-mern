@@ -1,8 +1,8 @@
-
+import NotesList from '../components/NotesList'
 
 export default function Favorite() {
 
   return (
-    null
+    <NotesList favorite/>
   )
 }
