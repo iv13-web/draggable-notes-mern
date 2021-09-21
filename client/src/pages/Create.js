@@ -1,4 +1,3 @@
-import React, {useState} from 'react'
 import {useHistory} from 'react-router-dom'
 import {KeyboardArrowRight} from '@material-ui/icons'
 import {
@@ -13,7 +12,9 @@ import {
 	FormLabel,
 	FormControl,
 } from '@material-ui/core'
-import useFetch from '../hooks/useFetch'
+import {useDispatch, useSelector} from 'react-redux'
+import {createNote, initialState} from '../store/notesSlice'
+import {useCreateNoteMutation} from '../store/notesApi'
 
 const useStyles = makeStyles({
 	field: {
@@ -28,25 +29,27 @@ const useStyles = makeStyles({
 export default function Create() {
 	const s = useStyles()
 	const history = useHistory()
-	const [title, setTitle] = useState('')
-	const [details, setDetails] = useState('')
-	const [titleError, setTitleError] = useState(false)
-	const [detailsError, setDetailsError] = useState(false)
-	const [category, setCategory] = useState('reminders')
-	const {sendRequest} = useFetch('http://localhost:5001/create', {
-		method: 'POST',
-		headers: {'Content-type': 'application/json'},
-		body: JSON.stringify({title, details, category}),
-		autoExecute: false
-	})
+	const dispatch = useDispatch()
+	const createdNote = useSelector(state => state.notes.createdNote)
+	const {title, details, category} = createdNote
+	const [sendRequest] = useCreateNoteMutation()
+
+	const dispatchTitleHandler = e => {
+		dispatch(createNote({...createdNote, title: e.target.value}))
+	}
+	const dispatchDetailsHandler = e => {
+		dispatch(createNote({...createdNote, details: e.target.value}))
+	}
+	const dispatchCategoryHandler = e => {
+		dispatch(createNote({...createdNote, category: e.target.value}))
+	}
+
+
 	const submitHandler = e => {
 		e.preventDefault()
-		title.trim() ? setTitleError(false) : setTitleError(true)
-		details.trim() ? setDetailsError(false) : setDetailsError(true)
-		if (title.trim() && details.trim()) {
-			sendRequest()
-			history.push('/')
-		}
+		sendRequest(createdNote)
+		dispatch(createNote(initialState.createdNote))
+		history.push('/')
 	}
 
 	return (
@@ -66,23 +69,17 @@ export default function Create() {
 			>
 				<TextField
 					value={title}
-					onChange={e => {
-						setTitle(e.target.value)
-						e.target.value.trim() && setTitleError(false)
-					}}
+					onChange={dispatchTitleHandler}
 					className={s.field}
 					label='Note title'
 					variant='outlined'
 					fullWidth
 					required
-					error={titleError}
+					// error={titleError}
 					autoFocus
 				/>
 				<TextField
-					onChange={e => {
-						setDetails(e.target.value)
-						e.target.value.trim() && setDetailsError(false)
-					}}
+					onChange={dispatchDetailsHandler}
 					value={details}
 					className={s.field}
 					label='Details'
@@ -91,12 +88,12 @@ export default function Create() {
 					multiline
 					rows={4}
 					required
-					error={detailsError}
+					// error={detailsError}
 				/>
 
 				<FormControl className={s.field}>
 					<FormLabel color='primary'>Note Category</FormLabel>
-					<RadioGroup value={category} onChange={e => setCategory(e.target.value)}>
+					<RadioGroup value={category} onChange={dispatchCategoryHandler}>
 						<FormControlLabel value='reminders' control={<Radio/>} label='Reminders'/>
 						<FormControlLabel value='shopping' control={<Radio/>} label='Shopping'/>
 						<FormControlLabel value='todos' control={<Radio/>} label='Todos'/>

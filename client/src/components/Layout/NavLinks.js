@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => {
 	}
 })
 
-export default function NavLinks() {
+export default function NavLinks({onCloseDrawer}) {
 	const s = useStyles()
 	const {pathname} = useLocation()
 
@@ -63,6 +63,7 @@ export default function NavLinks() {
 					<NavLink to={item.path} key={item.text}>
 						<ListItem
 							button
+							onClick={onCloseDrawer}
 							className={pathname === item.path ? s.activeNav : null}
 						>
 							<ListItemIcon className={s.listItem}>

@@ -14,7 +14,10 @@ import {purple, red, green, teal} from '@material-ui/core/colors'
 import FavoriteBorderOutlinedIcon from '@material-ui/icons/FavoriteBorderOutlined'
 import FavoriteOutlinedIcon from '@material-ui/icons/FavoriteOutlined'
 import {useDrag, useDrop} from 'react-dnd'
-import useFetch from '../hooks/useFetch'
+import {useChangeNotesOrderMutation, useDeleteNoteMutation, useSaveNoteMutation} from '../store/notesApi'
+import {useDispatch, useSelector} from 'react-redux'
+import { useDebouncedCallback } from 'use-debounce'
+import {addNotesToFavorite, deleteNote} from '../store/notesSlice'
 
 const useStyles = makeStyles({
 	card: {
@@ -40,47 +43,60 @@ const useStyles = makeStyles({
 	},
 	avatar: {
 		backgroundColor: (note) => {
-			if(note.category === 'work') return purple[200]
-			if(note.category === 'reminders') return red[200]
-			if(note.category === 'todos') return green[200]
-			if(note.category === 'money') return teal[200]
+			if (note.category === 'work') return purple[200]
+			if (note.category === 'reminders') return red[200]
+			if (note.category === 'todos') return green[200]
+			if (note.category === 'money') return teal[200]
 		}
 	},
 })
-
 const LEFT_BTN_TEXT = 'delete'
 const RIGHT_BTN_TEXT = 'open'
 
-
-export default function NoteCard({note, onDelete, onSave, findCard, moveCard, id, notes}) {
+export default function NoteCard({note, findCard, moveCard}) {
 	const s = useStyles(note)
-	const {sendRequest} = useFetch('http://localhost:5001', {
-		method: 'PUT',
-		body: JSON.stringify(notes),
-		autoExecute: false
-	})
+	const dispatch = useDispatch()
+	const notes = useSelector(state => state.notes.notes)
+	const [sendMovedCards] = useChangeNotesOrderMutation()
+	const [deleteNoteFromServer] = useDeleteNoteMutation()
+	const [saveNoteToServer] = useSaveNoteMutation()
 
-	const originalIndex = findCard(id).index
+	const sendMovedCardsDebounced = useDebouncedCallback(
+		() => sendMovedCards(notes),
+		1000,
+	)
+
+	const originalIndex = findCard(note._id).index
 
 	const [{isDragging}, drag] = useDrag(() => ({
 		type: 'note',
-		item: { id, originalIndex },
+		item: { id: note._id, originalIndex },
 		collect: (monitor) => ({
 			isDragging: monitor.isDragging(),
 		}),
-		end: () => sendRequest()
-	}), [])
+		end: () => sendMovedCardsDebounced()
+	}), [notes])
 
 	const [, drop] = useDrop(() => ({
 		accept: 'note',
 		canDrop: () => false,
 		hover({ id: draggedId }) {
-			if (draggedId !== id) {
-				const { index: overIndex } = findCard(id)
+			if (draggedId !== note._id) {
+				const { index: overIndex } = findCard(note._id)
 				moveCard(draggedId, overIndex)
 			}
 		},
 	}), [findCard, moveCard])
+
+	const deleteNoteHandler = noteId => {
+		dispatch(deleteNote(noteId))
+		deleteNoteFromServer(noteId)
+	}
+
+	const AddToFavoriteHandler = noteId => {
+		dispatch(addNotesToFavorite(noteId))
+		saveNoteToServer(noteId)
+	}
 
 	if (isDragging) return (
 		<Grid item xs={12} md={6} lg={4} xl={3}>
@@ -106,7 +122,7 @@ export default function NoteCard({note, onDelete, onSave, findCard, moveCard, id
 					}
 					action={
 						<IconButton
-							onClick={e => onSave(e, id)}
+							onClick={() => AddToFavoriteHandler(note._id)}
 							size='medium'
 						>
 							{note.favorite === false
@@ -124,7 +140,7 @@ export default function NoteCard({note, onDelete, onSave, findCard, moveCard, id
 							variant='text'
 							disableElevation
 							size='medium'
-							onClick={() => onDelete(note._id)}
+							onClick={() => deleteNoteHandler(note._id)}
 						>
 							<Typography
 								variant='button'

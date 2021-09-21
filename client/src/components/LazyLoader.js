@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react'
 
-export default function LazyLoader({delay, component}) {
+export default function LazyLoader({delay, component, children}) {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
@@ -8,5 +8,5 @@ export default function LazyLoader({delay, component}) {
     return () => clearTimeout(timeout)
   }, [delay])
 
-  return show ? component : null
+  return show ? component || children : null
 }

@@ -45,12 +45,12 @@ export default function Layout({children}) {
 	const [mobileOpen, setMobileOpen] = React.useState(false)
 	const handleDrawerToggle = () => setMobileOpen(prev => !prev)
 
-
 	return (
 		<div className={s.root}>
 			<TopBar onToggleDrawer={handleDrawerToggle}/>
 
-			<nav className={s.drawer} aria-label="mailbox folders">
+			<nav className={s.drawer} aria-label="notes actions and folders">
+
 				<Hidden smUp implementation="css">
 					<Drawer
 						variant="temporary"
@@ -60,16 +60,17 @@ export default function Layout({children}) {
 						classes={{paper: s.drawerPaper}}
 						ModalProps={{keepMounted: true}}
 					>
-						<NavLinks/>
+						<NavLinks onCloseDrawer={handleDrawerToggle}/>
 					</Drawer>
 				</Hidden>
-				<Hidden xsDown implementation="css">
+
+					<Hidden xsDown implementation="css">
 					<Drawer
 						classes={{paper: s.drawerPaper}}
 						variant="permanent"
 						open
 					>
-						<NavLinks/>
+						<NavLinks />
 					</Drawer>
 				</Hidden>
 			</nav>

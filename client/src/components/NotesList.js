@@ -1,10 +1,13 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useEffect} from 'react'
 import update from 'immutability-helper'
 import {Grid, makeStyles} from '@material-ui/core'
 import NoteCard from './NoteCard'
 import useFetch from '../hooks/useFetch'
 import SkeletonNote from './SkeletonNote'
 import LazyLoader from './LazyLoader'
+import {useGetNotesQuery} from '../store/notesApi'
+import {useDispatch, useSelector} from 'react-redux'
+import {storeNotes} from '../store/notesSlice'
 
 const useStyles = makeStyles({
   root: {
@@ -13,29 +16,15 @@ const useStyles = makeStyles({
 })
 
 export default function NotesList(props) {
-  const [notes, setNotes] = useState([])
   const s = useStyles()
-  const {response, isLoading} = useFetch(props.favorite
-    ? `http://localhost:5001/favorite`
-    : `http://localhost:5001`
-  )
-  const {sendRequest} = useFetch('http://localhost:5001', {autoExecute: false})
+  const dispatch = useDispatch()
+  const notes = useSelector(state => state.notes.notes)
+  const pageType = props.favorite ? 'favorite' : ''
+  const {data, isLoading} = useGetNotesQuery(pageType)
 
-  useEffect(() => setNotes(response),[response])
-
-  const deleteNoteHandler = noteId => {
-    const newNotes = notes.filter(note => note._id !== noteId)
-    sendRequest({url: 'http://localhost:5001/' + noteId, method: 'DELETE'})
-    setNotes(newNotes)
-  }
-
-  const AddToFavoriteHandler = (e, noteId) => {
-    e.stopPropagation()
-    const newNotes = [...notes]
-    const index = newNotes.findIndex(note => note._id === noteId)
-    newNotes[index].favorite = !newNotes[index].favorite
-    sendRequest({url: 'http://localhost:5001/' + noteId, method: 'PATCH'})
-  }
+  useEffect(() => {
+    data && dispatch(storeNotes(data))
+  },[data])
 
   const findCard = useCallback((id) => {
     const note = notes.filter((c) => `${c._id}` === id)[0]
@@ -44,31 +33,33 @@ export default function NotesList(props) {
 
   const moveCard = useCallback((id, atIndex) => {
     const {note, index} = findCard(id);
-    setNotes(update(notes, {
+    dispatch(storeNotes(update(notes, {
       $splice: [
         [index, 1],
         [atIndex, 0, note],
       ],
-    }))
-  }, [findCard, notes, setNotes])
+    })))
+  }, [findCard, notes])
+
+  if (!isLoading && notes?.length === 0) return (
+    <LazyLoader delay={700}>
+      <h1>add notes</h1>
+    </LazyLoader>
+  )
 
   return (
     <div className={s.root}>
       <Grid container spacing={3} >
         {isLoading &&
           <LazyLoader
-            delay={300}
+            delay={700}
             component={<SkeletonNote count={12}/>}
           />
         }
         {notes && notes.map(note => (
           <NoteCard
             key={note._id}
-            id={note._id}
             note={note}
-            notes={notes}
-            onDelete={deleteNoteHandler}
-            onSave={AddToFavoriteHandler}
             moveCard={moveCard}
             findCard={findCard}
           />

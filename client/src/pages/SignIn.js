@@ -7,7 +7,11 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
-import {Link as RouterLink} from 'react-router-dom'
+import {Link as RouterLink, useHistory} from 'react-router-dom'
+import {useDispatch, useSelector} from 'react-redux'
+import {login} from '../store/authSlice'
+import {useFormik} from 'formik'
+import * as yup from 'yup'
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -29,8 +33,33 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
+const validationSchema = yup.object({
+  email: yup
+    .string('Enter your email')
+    .email('Enter a valid email')
+    .required('Email is required'),
+  password: yup
+    .string('Enter your password')
+    .required('Password is required'),
+})
+
 export default function SignIn() {
   const s = useStyles()
+  const history = useHistory()
+  const dispatch = useDispatch()
+  const isLoggedIn = useSelector(state => state.auth.isLoggedIn)
+
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      dispatch(login())
+      history.push('/')
+    },
+  })
 
   return (
     <Container component="main" maxWidth="xs">
@@ -41,7 +70,8 @@ export default function SignIn() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <form className={s.form} noValidate>
+
+        <form className={s.form} noValidate onSubmit={formik.handleSubmit}>
           <TextField
             variant="outlined"
             margin="normal"
@@ -52,6 +82,11 @@ export default function SignIn() {
             name="email"
             autoComplete="email"
             autoFocus
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.email && Boolean(formik.errors.email)}
+            helperText={formik.touched.email && formik.errors.email}
           />
           <TextField
             variant="outlined"
@@ -63,6 +98,11 @@ export default function SignIn() {
             type="password"
             id="password"
             autoComplete="current-password"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.password && Boolean(formik.errors.password)}
+            helperText={formik.touched.password && formik.errors.password}
           />
           <Button
             type="submit"
