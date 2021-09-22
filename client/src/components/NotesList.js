@@ -2,7 +2,6 @@ import React, {useCallback, useEffect} from 'react'
 import update from 'immutability-helper'
 import {Grid, makeStyles} from '@material-ui/core'
 import NoteCard from './NoteCard'
-import useFetch from '../hooks/useFetch'
 import SkeletonNote from './SkeletonNote'
 import LazyLoader from './LazyLoader'
 import {useGetNotesQuery} from '../store/notesApi'
@@ -20,7 +19,7 @@ export default function NotesList(props) {
   const dispatch = useDispatch()
   const notes = useSelector(state => state.notes.notes)
   const pageType = props.favorite ? 'favorite' : ''
-  const {data, isLoading} = useGetNotesQuery(pageType)
+  const {data, isLoading } = useGetNotesQuery(pageType)
 
   useEffect(() => {
     data && dispatch(storeNotes(data))

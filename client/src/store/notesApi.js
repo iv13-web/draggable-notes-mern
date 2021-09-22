@@ -6,34 +6,34 @@ export const notesApi = createApi({
 	baseQuery: fetchBaseQuery({baseUrl: 'http://localhost:5001'}),
 	endpoints: (build) => ({
 		getNotes: build.query({
-			query: (type) => `/${type}`,
+			keepUnusedDataFor: 0,
+			query: (type) => `/${type || ''}`,
 			providesTags: (result) => result
 				?	[
 						...result.map(({id}) => ({type: 'Notes', id})),
 						{type: 'Notes', id: 'List'}
 					]
-				: [{type: 'Notes', id: 'List'}]
+				: [{type: 'Notes', id: 'List'}],
+			// invalidatesTags: [{type: 'Notes', id: 'List'}]
 		}),
 		changeNotesOrder: build.mutation({
 			query: (body) => ({
 				url: '/',
 				method: 'PUT',
 				body
-			})
+			}),
 		}),
 		deleteNote: build.mutation({
 			query: (noteId) => ({
 				url: `/${noteId}`,
 				method: 'DELETE',
 			}),
-			invalidatesTags: [{type: 'Notes', id: 'List'}]
 		}),
 		saveNote: build.mutation({
 			query: (noteId) => ({
 				url: `/${noteId}`,
 				method: 'PATCH',
 			}),
-			invalidatesTags: [{type: 'Notes', id: 'List'}]
 		}),
 		createNote: build.mutation({
 			query: (body) => ({
@@ -41,7 +41,6 @@ export const notesApi = createApi({
 				method: 'POST',
 				body
 			}),
-			invalidatesTags: [{type: 'Notes', id: 'List'}]
 		})
 	})
 })

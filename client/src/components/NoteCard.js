@@ -8,7 +8,7 @@ import {
 	CardActions,
 	Divider,
 	Button,
-	ButtonGroup, Grid
+	ButtonGroup, Grid, LinearProgress
 } from '@material-ui/core'
 import {purple, red, green, teal} from '@material-ui/core/colors'
 import FavoriteBorderOutlinedIcon from '@material-ui/icons/FavoriteBorderOutlined'
@@ -16,8 +16,8 @@ import FavoriteOutlinedIcon from '@material-ui/icons/FavoriteOutlined'
 import {useDrag, useDrop} from 'react-dnd'
 import {useChangeNotesOrderMutation, useDeleteNoteMutation, useSaveNoteMutation} from '../store/notesApi'
 import {useDispatch, useSelector} from 'react-redux'
-import { useDebouncedCallback } from 'use-debounce'
 import {addNotesToFavorite, deleteNote} from '../store/notesSlice'
+import {useEffect, useRef, useState} from 'react'
 
 const useStyles = makeStyles({
 	card: {
@@ -57,14 +57,26 @@ export default function NoteCard({note, findCard, moveCard}) {
 	const s = useStyles(note)
 	const dispatch = useDispatch()
 	const notes = useSelector(state => state.notes.notes)
-	const [sendMovedCards] = useChangeNotesOrderMutation()
 	const [deleteNoteFromServer] = useDeleteNoteMutation()
 	const [saveNoteToServer] = useSaveNoteMutation()
+	const [sendMovedCards] = useChangeNotesOrderMutation()
+	const [isDragLoading, setIsDragLoading] = useState(false)
+	let fetchTimerRef = useRef(null)
+	let dragLoaderTimerRef = useRef(null)
+	let isMounted = useRef(null)
 
-	const sendMovedCardsDebounced = useDebouncedCallback(
-		() => sendMovedCards(notes),
-		1000,
-	)
+	useEffect(() => {
+		isMounted.current = true
+		return () => {
+			isMounted.current = false
+			clearTimeout(dragLoaderTimerRef.current)
+			setIsDragLoading(false)
+		}
+	},[])
+
+	useEffect(() => {
+		clearTimeout(fetchTimerRef.current)
+	}, [notes])
 
 	const originalIndex = findCard(note._id).index
 
@@ -74,7 +86,18 @@ export default function NoteCard({note, findCard, moveCard}) {
 		collect: (monitor) => ({
 			isDragging: monitor.isDragging(),
 		}),
-		end: () => sendMovedCardsDebounced()
+		end: () => {
+			setIsDragLoading(true)
+			fetchTimerRef.current = setTimeout(() => {
+				if (isMounted.current) {
+					sendMovedCards(notes)
+					// добавить уведолмения поп-ап о сохранении порядка
+				}
+			}, 1000)
+			dragLoaderTimerRef.current = setTimeout(() => {
+				setIsDragLoading(false)
+			}, 1000)
+		}
 	}), [notes])
 
 	const [, drop] = useDrop(() => ({
@@ -132,7 +155,10 @@ export default function NoteCard({note, findCard, moveCard}) {
 						</IconButton>
 					}
 				/>
-				<Divider/>
+				{isDragLoading
+					? <LinearProgress style={{height: 1}}/>
+					: <Divider/>
+				}
 				<CardActions disableSpacing>
 					<ButtonGroup>
 						<Button

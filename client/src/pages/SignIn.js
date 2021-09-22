@@ -12,6 +12,7 @@ import {useDispatch, useSelector} from 'react-redux'
 import {login} from '../store/authSlice'
 import {useFormik} from 'formik'
 import * as yup from 'yup'
+import React from 'react'
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -113,14 +114,19 @@ export default function SignIn() {
           >
             Sign In
           </Button>
-          <Grid container style={{justifyContent: 'end'}}>
-            <Grid item>
-              <Link component={RouterLink} to='/signup' variant="body2">
-                {"Don't have an account? Sign Up"}
-              </Link>
-            </Grid>
-          </Grid>
         </form>
+        <Grid container style={{justifyContent: 'end'}}>
+          <Grid item>
+            <Link
+              component={RouterLink}
+              to='/signup'
+              variant="body2"
+              onMouseDown={() => history.push('/signup')}
+            >
+              Don't have an account? Sign Up
+            </Link>
+          </Grid>
+        </Grid>
       </div>
     </Container>
   )

@@ -5,8 +5,9 @@ export const initialState = {
 	createdNote: {
 		title: '',
 		details: '',
-		category: 'reminders'
-	}
+		category: 'reminders',
+	},
+	isMoving: false
 }
 
 const notesSlice = createSlice({
@@ -16,9 +17,6 @@ const notesSlice = createSlice({
 		storeNotes: (state, action) => {
 			state.notes = [...action.payload]
 		},
-		moveNotes: (state, action) => {
-			state.notes = [...action.payload]
-		},
 		addNotesToFavorite: (state, action) => {
 			const noteId = action.payload
 			const index = state.notes.findIndex(note => note._id === noteId)
@@ -26,12 +24,15 @@ const notesSlice = createSlice({
 		},
 		deleteNote: (state, action) => {
 			const noteId = action.payload
-			state.notes.filter(note => note._id !== noteId)
+			state.notes = [...state.notes.filter(note => note._id !== noteId)]
 		},
 		createNote: (state, action) => {
 			const {title, details, category} = action.payload
 			state.createdNote = {title, details, category}
-		}
+		},
+		isMoving: (state, action) => {
+			state.isMoving = action.payload
+		},
 	}
 })
 
@@ -41,5 +42,6 @@ export const {
 	moveNotes,
 	addNotesToFavorite,
 	deleteNote,
-	createNote
+	createNote,
+	isMoving,
 } = notesSlice.actions
