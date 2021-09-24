@@ -15,7 +15,8 @@ const notesSlice = createSlice({
 	initialState,
 	reducers: {
 		storeNotes: (state, action) => {
-			state.notes = [...action.payload]
+			// state.notes = [...action.payload]
+			state.notes = action.payload
 		},
 		addNotesToFavorite: (state, action) => {
 			const noteId = action.payload
@@ -33,7 +34,7 @@ const notesSlice = createSlice({
 		isMoving: (state, action) => {
 			state.isMoving = action.payload
 		},
-	}
+	},
 })
 
 export default notesSlice.reducer

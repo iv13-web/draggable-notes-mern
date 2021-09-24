@@ -19,11 +19,15 @@ export default function NotesList(props) {
   const dispatch = useDispatch()
   const notes = useSelector(state => state.notes.notes)
   const pageType = props.favorite ? 'favorite' : ''
-  const {data, isLoading } = useGetNotesQuery(pageType)
+  const {data, isLoading} = useGetNotesQuery()
 
   useEffect(() => {
-    data && dispatch(storeNotes(data))
-  },[data])
+    if (!props.favorite) {
+      data && dispatch(storeNotes(data))
+    } else {
+      dispatch(storeNotes(notes.filter(note => note.favorite)))
+    }
+  }, [data, props.favorite])
 
   const findCard = useCallback((id) => {
     const note = notes.filter((c) => `${c._id}` === id)[0]
@@ -40,22 +44,16 @@ export default function NotesList(props) {
     })))
   }, [findCard, notes])
 
-  if (!isLoading && notes?.length === 0) return (
-    <LazyLoader delay={700}>
-      <h1>add notes</h1>
-    </LazyLoader>
-  )
-
   return (
     <div className={s.root}>
-      <Grid container spacing={3} >
+      <Grid container spacing={3}>
         {isLoading &&
           <LazyLoader
             delay={700}
             component={<SkeletonNote count={12}/>}
           />
         }
-        {notes && notes.map(note => (
+        {notes.map(note => (
           <NoteCard
             key={note._id}
             note={note}

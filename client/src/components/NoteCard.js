@@ -16,7 +16,7 @@ import FavoriteOutlinedIcon from '@material-ui/icons/FavoriteOutlined'
 import {useDrag, useDrop} from 'react-dnd'
 import {useChangeNotesOrderMutation, useDeleteNoteMutation, useSaveNoteMutation} from '../store/notesApi'
 import {useDispatch, useSelector} from 'react-redux'
-import {addNotesToFavorite, deleteNote} from '../store/notesSlice'
+import {addNotesToFavorite, deleteNote, isMoving} from '../store/notesSlice'
 import {useEffect, useRef, useState} from 'react'
 
 const useStyles = makeStyles({
@@ -65,12 +65,15 @@ export default function NoteCard({note, findCard, moveCard}) {
 	let dragLoaderTimerRef = useRef(null)
 	let isMounted = useRef(null)
 
+
 	useEffect(() => {
 		isMounted.current = true
+		dispatch(isMoving(false))
 		return () => {
 			isMounted.current = false
 			clearTimeout(dragLoaderTimerRef.current)
 			setIsDragLoading(false)
+			// dispatch(isMoving(false))
 		}
 	},[])
 
@@ -87,7 +90,10 @@ export default function NoteCard({note, findCard, moveCard}) {
 			isDragging: monitor.isDragging(),
 		}),
 		end: () => {
+			dispatch(isMoving(false))
 			setIsDragLoading(true)
+			// dispatch(isMoving(true))
+
 			fetchTimerRef.current = setTimeout(() => {
 				if (isMounted.current) {
 					sendMovedCards(notes)
@@ -96,7 +102,7 @@ export default function NoteCard({note, findCard, moveCard}) {
 			}, 1000)
 			dragLoaderTimerRef.current = setTimeout(() => {
 				setIsDragLoading(false)
-			}, 1000)
+			}, 1500)
 		}
 	}), [notes])
 
@@ -155,10 +161,11 @@ export default function NoteCard({note, findCard, moveCard}) {
 						</IconButton>
 					}
 				/>
-				{isDragLoading
-					? <LinearProgress style={{height: 1}}/>
-					: <Divider/>
-				}
+				<Divider/>
+				{/*{isDragLoading*/}
+				{/*	? <LinearProgress style={{height: 1}}/>*/}
+				{/*	: <Divider/>*/}
+				{/*}*/}
 				<CardActions disableSpacing>
 					<ButtonGroup>
 						<Button

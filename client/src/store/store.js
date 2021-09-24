@@ -26,3 +26,4 @@ export const store = configureStore({
 		return getDefaultMiddleware().concat(notesApi.middleware)
 	}
 })
+
